@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { fetchCustomers, fetchTransactions } from "./services/api";
+import TransactionGraph from "./components/TransactionGraph";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.css";
 
 
 function App() {
@@ -8,6 +11,7 @@ function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [minAmount, setMinAmount] = useState("");
   const [maxAmount, setMaxAmount] = useState("");
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
 
   useEffect(() => {
     fetchCustomers().then((response) => {
@@ -29,6 +33,11 @@ function App() {
   const handleMaxAmountChange = (e) => {
     setMaxAmount(e.target.value);
   };
+
+  const handleCustomerClick = (customer) => {
+    setSelectedCustomer(customer);
+  };
+
   const filteredCustomers = customers.filter((customer) =>
     customer.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -85,7 +94,9 @@ function App() {
             return (
               <tr
                 key={customer.id}
-                className="customer-row"
+                className={`customer-row ${selectedCustomer?.id === customer.id ? "selected-row" : ""
+                  }`}
+                onClick={() => handleCustomerClick(customer)}
               >
                 <td>{customer.name}</td>
                 <td>
@@ -108,7 +119,11 @@ function App() {
           })}
         </tbody>
       </table>
-
+      {selectedCustomer && (
+        <TransactionGraph
+          transactions={filterTransactions(selectedCustomer.id)}
+        />
+      )}
     </div>
   );
 }
